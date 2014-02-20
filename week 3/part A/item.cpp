@@ -24,3 +24,8 @@ void Item::print()
 {
 	cout << "item id " << _id << endl;
 }
+
+void Item::resetcounter() //resets the id counter
+{
+	_idcounter = 0;
+}

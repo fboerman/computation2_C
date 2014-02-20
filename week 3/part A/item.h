@@ -10,7 +10,8 @@ public:
 
     int id();
 
-    virtual void print();
+	virtual void print();
+	void resetcounter();
 
 protected:
     int _id;

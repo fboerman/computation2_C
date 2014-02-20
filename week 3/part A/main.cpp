@@ -77,6 +77,7 @@ void main()
 				it.next();
 			} while (it != my_list->begin());
 			my_list->clear();
+			my_list->begin().get()->resetcounter();
             break;
         case 'q':
             break;
