@@ -4,6 +4,7 @@
 
 #include "list.h"
 #include "item.h"
+#include <time.h>
 
 using namespace std;
 
@@ -248,6 +249,7 @@ int List::highest_id() //finds the highest id number and returns it, 0 for empty
 
 void List::sort() //sorts the list from low to high id
 {
+	clock_t tstart = clock();
 	int highestid = highest_id();
 
 	for (int i = highestid; i > 0; i--)
@@ -260,4 +262,8 @@ void List::sort() //sorts the list from low to high id
 		}
 
 	}
+
+	clock_t tend = clock();
+
+	//cout << "sorted in " << tend - tstart << endl;
 }
