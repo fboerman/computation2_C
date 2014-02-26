@@ -71,6 +71,11 @@ void main()
             break;
         case 'x': // destroy list
 			it = my_list->begin();
+			if (it.get() == nullptr)
+			{
+				cout << "List already empyt." << endl;
+				break;
+			}
 			do
 			{
 				delete it.get();
