@@ -7,7 +7,8 @@
 #ifndef DRAWTOOLS_H // this avoids multiple inclusion of this file
 #define DRAWTOOLS_H
 
-#include "dlist.h"  // to include the dlist class
+//#include "main.h"
+#include "dlist.h"
 
 class line;          // forward: the classes in this file
 class pixel;
@@ -83,7 +84,7 @@ class text :
 			public item    // inherits from item because its part of a DrawList
 {
 public:
-	text(dlist* list, const string str, const float color[3], int x, int y);
+	text(dlist* list, const std::string str, const float color[3], int x, int y);
 	~text(void);
 
 	void print() const;   // print myself in EDIF++ format
@@ -92,7 +93,7 @@ public:
 	// you can add more public members here, if needed
 
 private:
-	string _str;
+	std::string _str;
 	float _color[3];
 	int _x;
 	int _y;
@@ -110,17 +111,19 @@ class square :
 	public item
 {
 public:
-	square(dlist* list, const float p1[2], const float p2[2], const float color[3]);
+	square(dlist* list, const float p1[2], const float p2[2], const float linecolor[3], const float fillcolor[3]);
 	~square(void);
 
 	void print() const;
 	void draw(void);
 	void flip(void);
+	int get_status(void);
 
 private:
 	float _p1[2];//actual drawing position
 	float _p2[2];
-	float _color[3];
+	float _linecolor[3];
+	float _fillcolor[3];
 	int _filled;
 	int _x; //position in the grid
 	int _y;

@@ -82,12 +82,14 @@
     <ClCompile Include="drawtools.cpp" />
     <ClCompile Include="GameOfLife.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Parser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dlist.h" />
     <ClInclude Include="drawtools.h" />
     <ClInclude Include="GameOfLife.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Parser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

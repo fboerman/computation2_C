@@ -15,7 +15,9 @@
 #define DLIST_H
 
 
+
 class item;  // forward
+class dlist;
 
     //////////////////////////////////////////////////////
    //

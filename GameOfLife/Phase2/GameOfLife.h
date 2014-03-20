@@ -12,6 +12,7 @@
 #define CELL_DIMENSION 30
 
 #include "dlist.h"
+#include "drawtools.h"
 
 //forward declaration
 class cell;
@@ -27,30 +28,42 @@ class cell;
 class cell
 {
 public:
-	cell(int age, int alive);
+	cell(const int age, square* sqr);
 	~cell(void);
 
-	//flips the alive status
+	//flips the buffer
 	void flip(void);
+	//flips the alive status
+	void flip_flush(void);
 	//increments the age
 	void age(void);
-	//returns age
+	//flushes the buffer to drawlist
+	void flush_buffer(void);
+
 	int get_age(void);
+	int get_status(void);
 
 private:
 	int _age;
-	int _alive;
+	square* _square; //corresponding square on screen
+	int _bufferstatus;
 };
 
 //help functions
 
 //calculates ammount of cells possible on window with given windowsize and cell dimension
-int* calc_grid_size(int* windowsize, int cell_dimension);
+int* calc_grid_size(const int* windowsize, const int cell_dimension);
 
 //calculates the window size with given grid size and cell dimension
-int* calc_window_size(int* gridsize, int cell_dimension);
+int* calc_window_size(const int* gridsize, const int cell_dimension);
 
 //fills give grid with empty cells (dead and with 0 age) and adds it to drawlist
 void fill_grid(cell**** p_DA_GRID, dlist* drawlist, const int xsize, const int ysize);
+
+//checks the whole grid and advances it one generation
+void Tick(cell**** p_DA_GRID, const int gridwidth, const int gridheight);
+
+//calculates the wraparound coordinate
+int calc_wraparound(int index, int maxsize);
 
 #endif

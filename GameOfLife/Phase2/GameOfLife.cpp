@@ -18,10 +18,16 @@ using namespace std;
 #include "dlist.h"
 #include "drawtools.h"
 
-cell::cell(int age, int alive)
+//define colors of the cells at the start
+float LINECOLOR[3] = { 0.0, 0.5, 0.0 };
+float CELLCOLOR[3] = { 0.0, 0.0, 0.5 };
+
+cell::cell(const int age, square* sqr)
 {
+	assert(sqr);
 	_age = age;
-	_alive = alive;
+	_square = sqr;
+	_bufferstatus = 0;
 }
 
 cell::~cell()
@@ -31,7 +37,13 @@ cell::~cell()
 
 void cell::flip()
 {
-	_alive = !_alive;
+	_bufferstatus = !_bufferstatus;
+}
+
+void cell::flip_flush()
+{
+	_square->flip();
+	_bufferstatus = _square->get_status();
 }
 
 int cell::get_age()
@@ -44,9 +56,22 @@ void cell::age()
 	_age++;
 }
 
+int cell::get_status()
+{
+	return _square->get_status();
+}
+
+void cell::flush_buffer()
+{
+	if (this->get_status() != _bufferstatus)
+	{
+		this->flip_flush();
+	}
+}
+
 //help functions
 
-int* calc_grid_size(int* windowsize, int cell_dimension)
+int* calc_grid_size(const int* windowsize, const int cell_dimension)
 {
 	int gridsize[2];
 
@@ -58,7 +83,7 @@ int* calc_grid_size(int* windowsize, int cell_dimension)
 	return gridsize;
 }
 
-int* calc_window_size(int* gridsize, int cell_dimension)
+int* calc_window_size(const int* gridsize, const int cell_dimension)
 {
 	int windowsize[2];
 
@@ -88,9 +113,62 @@ void fill_grid(cell**** p_DA_GRID, dlist* drawlist, const int xsize, const int y
 			p1[0] = x * CELL_DIMENSION;
 			p2[0] = (x + 1) * CELL_DIMENSION;
 			//create the cell and coresponding square
-			new square(drawlist, p1, p2, clr);
-			DA_GRID[x][y] = new cell(0, 0);
+			square* sqr = new square(drawlist, p1, p2, LINECOLOR, CELLCOLOR);
+			DA_GRID[x][y] = new cell(0, sqr);
 		}
 	}
 
+}
+
+void Tick(cell**** p_DA_GRID, const int gridwidth, const int gridheight)
+{
+	//calculate the new generation
+	cell*** DA_GRID = *p_DA_GRID;
+	for (int x = 0; x < gridwidth; x++)
+	{
+		for (int y = 0; y < gridheight; y++)
+		{
+			//use wraparound formula
+			//count the neighbours
+			int neighbors = DA_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y + 1, gridheight)]->get_status() + DA_GRID[x][calc_wraparound(y + 1, gridheight)]->get_status() + DA_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y + 1,gridheight)]->get_status() +
+				DA_GRID[calc_wraparound(x - 1, gridwidth)][y]->get_status() + DA_GRID[calc_wraparound(x + 1,gridwidth)][y]->get_status() +
+				DA_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y - 1, gridheight)]->get_status() + DA_GRID[x][calc_wraparound(y - 1, gridheight)]->get_status() + DA_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y - 1,gridheight)]->get_status();
+
+			//any live cell with fewer than two live neighbours dies, as if by loneliness
+			if ((neighbors < 2) && DA_GRID[x][y]->get_status())
+			{
+				DA_GRID[x][y]->flip();
+				continue;
+			}
+			//Any live cell with more than three live neighbours dies, as if by overcrowding
+			if ((neighbors > 3) && DA_GRID[x][y]->get_status())
+			{
+				DA_GRID[x][y]->flip();
+				continue;
+			}
+
+			//any dead cell with exactly three live neighbours comes to life
+			if ((neighbors == 3) && !DA_GRID[x][y]->get_status())
+			{
+				DA_GRID[x][y]->flip();
+				continue;
+			}
+			//Any live cell with two or three live neighbours live, unchanged, to the next generation
+			//if all others are false than go to next cell
+
+		}
+	}
+	//flush the buffers
+	for (int x = 0; x < gridwidth; x++)
+	{
+		for (int y = 0; y < gridheight; y++)
+		{
+			DA_GRID[x][y]->flush_buffer();
+		}
+	}
+}
+
+int calc_wraparound(int index, int maxsize)
+{
+	return (index + maxsize) % maxsize;
 }

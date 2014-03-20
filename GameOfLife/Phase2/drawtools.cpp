@@ -196,26 +196,50 @@ void text::draw()
 //
 ///////////////////////////////////////////////////////
 
-square::square(dlist* list, const float p1[2], const float p2[2], const float color[3])
+square::square(dlist* list, const float p1[2], const float p2[2], const float linecolor[3], const float fillcolor[3])
 	:item(list)
 {
 	assert(p1);
 	assert(p2);
-
+	
 	copy_array(p1, _p1);
 	copy_array(p2, _p2);
-	if (!color)
+
+	if (!linecolor)
 	{
-		_color[0] = 0;
-		_color[1] = 0;
-		_color[2] = 0;
+		_linecolor[0] = 0;
+		_linecolor[1] = 0;
+		_linecolor[2] = 0;
 	}
 	else
 	{
-		copy_array(color, _color);
+		copy_array(linecolor, _linecolor);
+	}
+
+	if (!linecolor)
+	{
+		_linecolor[0] = 0;
+		_linecolor[1] = 0;
+		_linecolor[2] = 0;
+	}
+	else
+	{
+		copy_array(linecolor, _linecolor);
+	}
+
+	if (!fillcolor)
+	{
+		_fillcolor[0] = 0;
+		_fillcolor[1] = 0;
+		_fillcolor[2] = 0;
+	}
+	else
+	{
+		copy_array(fillcolor, _fillcolor);
 	}
 
 	_filled = 0;
+
 }
 
 square::~square()
@@ -246,7 +270,7 @@ void square::draw()
 	if (_filled)
 	{
 		glBegin(GL_QUADS);
-			glColor3fv(_color);
+			glColor3fv(_fillcolor);
 			glVertex2fv(_p1);
 			glVertex2fv(p3);
 			glVertex2fv(_p2);
@@ -256,7 +280,7 @@ void square::draw()
 	else
 	{
 		glBegin(GL_LINES);
-			glColor3fv(_color);
+			glColor3fv(_linecolor);
 			glVertex2fv(_p1);
 			glVertex2fv(p3);
 			glVertex2fv(p3);
@@ -272,4 +296,9 @@ void square::draw()
 void square::flip()
 {
 	_filled = !_filled;
+}
+
+int square::get_status()
+{
+	return _filled;
 }

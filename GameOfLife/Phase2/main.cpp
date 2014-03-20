@@ -6,21 +6,23 @@
 ///////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glut.h>			 // glut header file. Never include glut before stdlib.h!
+#include <GL/glut.h> // glut header file. Never include glut before stdlib.h!
 #include <sstream>
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <list>
 
 using namespace std;
 
-#define _USE_MATH_DEFINES	// Signal math.h that we would like defines like M_PI
-#include <math.h>			// Might come in usefull for cosine functions and stuff like that
+#define _USE_MATH_DEFINES // Signal math.h that we would like defines like M_PI
+#include <math.h> // Might come in usefull for cosine functions and stuff like that
 
-#include "main.h"			// Function declarations and some definitions
-#include "dlist.h"			// base class of the drawtools
-#include "drawtools.h"      // contains all you need to draw stuff
-#include "GameOfLife.h"
+#include "main.h" // Function declarations and some definitions
+#include "dlist.h" // base class of the drawtools
+#include "drawtools.h" // contains all you need to draw stuff
+#include "GameOfLife.h"	
+//#include "Parser.h"
 
 
 //    Global variables
@@ -32,15 +34,20 @@ using namespace std;
       variables and setup things that have to be done BEFORE the actual
       picture is drawn.
 */
-void init(int width, int height)
+void init() //all glut callbacks and initializations
 {
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);	// Double buffering, RGB format
-	glutInitWindowSize(width, height);				// 1024 x 500 pixel window
+	glutInitWindowSize(windowwidth, windowheight);				// 1024 x 500 pixel window
 	glutInitWindowPosition(0,0);					// Window appear in the top-left corner of the screen
 	glutCreateWindow(windowname.c_str());		// Window title
 	glutDisplayFunc(display);						// Main display function
 	glutReshapeFunc(reshape);						// Reshape function, called when the window resizes
-	glutKeyboardFunc(keypressed);					//detects key pressing
+	//glutKeyboardFunc(keypressed_debug);					//detects key pressing
+	glutMouseFunc(mouseClick);						//detects mouse click
+	glutTimerFunc(500, Time_Tick, 0);
+
+	glutKeyboardFunc(keypress);
+	glutIgnoreKeyRepeat(1);
 
 	glClearColor(1.0, 1.0, 1.0, 1.0);   // white background
 	
@@ -48,25 +55,57 @@ void init(int width, int height)
 	glLoadIdentity();                   // Reset matrix, returns viewport to origin
 											// and undo possible rotations
 
-	gluOrtho2D(0.0, (float)WIDTH, 0.0, (float)HEIGHT);
+	gluOrtho2D(0.0, (float)windowwidth, 0.0, (float)windowheight);
 
 	glMatrixMode(GL_MODELVIEW);
-
-	//float clr[3] = { 0, 0, 0.5 };
-	//float p2[2] = { 100, 100 };
-	//float p3[2] = { 200, 200 };
-	//square* ln = new square(&DrawList, p2, p3, clr);
-	//ln->print();
-
-	//float p4[2] = { 300, 300 };
-	//float p5[2] = { 400, 400 };
-	//ln = new square(&DrawList, p4, p5, clr);
-	//ln->flip();
-	//ln->print();
 	
 }
 
-void keypressed(unsigned char key, int x, int y)
+void Time_Tick(int id)
+{
+
+	if (paused)
+	{
+		return;
+	}
+	Tick(&GLOBAL_GRID, gridwidth, gridheight);
+	glutTimerFunc(500, Time_Tick, 0);
+	glutPostRedisplay();
+}
+
+//p for pause
+//n for 1 iteration
+//r for reset
+void keypress(unsigned char key, int x, int y) 
+{
+	switch (key)
+	{
+	case 'p':
+		paused = !paused;
+		Time_Tick(0);
+		break;
+	case 'n':
+		Tick(&GLOBAL_GRID, gridwidth, gridheight);
+		glutPostRedisplay();
+		break;
+	case 'r':
+		for (int x = 0; x < gridwidth; x++)
+		{
+			for (int y = 0; y < gridheight; y++)
+			{
+				if (GLOBAL_GRID[x][y]->get_status())
+				{
+					GLOBAL_GRID[x][y]->flip_flush();
+				}
+			}
+		}
+		glutPostRedisplay();
+		break;
+	}
+	
+}
+
+void keypressed_debug(unsigned char key, int x, int y)
 {
 	keytext.str("");
 	keytext.clear();
@@ -111,19 +150,33 @@ void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);  // clear the backbuffer
 
-	printtext(keytext.str(),50,50); //print text of pressed key
 	//iterate through the drawlist
 	dlist::ITER iter(&DrawList);
 	item* itemptr = 0;
 	while (itemptr = iter.next())
 	{
-		itemptr->draw();
+		itemptr->draw(); //and draw the item
 	}
-
+	printtext(keytext.str(), 50, 50); //print text of pressed key
 	glFlush();			// Execute all commands waiting to be executed
 	glutSwapBuffers();	// Swap the backbuffer and frontbuffer,
 						// display what has been drawn
  }
+
+void mouseClick(int button, int state, int x, int y)
+{
+	if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN))
+	{
+		int xgrid = ceil(x / CELL_DIMENSION);
+		int ygrid = ceil((windowheight - y) / CELL_DIMENSION);
+		if (xgrid < gridwidth && ygrid < gridheight)
+		{
+			GLOBAL_GRID[xgrid][ygrid]->flip_flush();
+			glutPostRedisplay();
+		}
+	}
+}
+
 //---------------------------------------------------------------------------
 int main(int argc, char* argv[]) //arguments: .exe path, fixed windowsize(0)/fixed gridsize(1), fixed x, fixed y
 {
@@ -134,17 +187,6 @@ int main(int argc, char* argv[]) //arguments: .exe path, fixed windowsize(0)/fix
 
 	pgridsize = gridsize;
 	pwindowsize = windowsize;
-
-	//debug input from commandline
-	//window_calc_way = 1;
-	//windowsize[0] = WIDTH;
-	//windowsize[1] = HEIGHT;
-	//gridsize[0] = 30;
-	//gridsize[1] = 30;
-	//*pgridsize = 10;
-	//*(pgridsize + 1) = 10;
-	//*(pwindowsize) = WIDTH;
-	//*(pwindowsize + 1) = HEIGHT;
 
 	//set window and grid size
 	switch ((int)*argv[1] - (int)'0')
@@ -167,88 +209,26 @@ int main(int argc, char* argv[]) //arguments: .exe path, fixed windowsize(0)/fix
 
 	//init the grid
 	//for some reason the new commands change the pgridsize and pwindowsizearray, so save the value in a normal int, no idea why
-	int x = *pgridsize;
-	int y = *(pgridsize + 1);
-	int width = *pwindowsize;
-	int height = *(pwindowsize + 1);
-	GLOBAL_GRID = new cell**[x];
-	for (int i = 0; i < x; i++)
+	gridwidth = *pgridsize;
+	gridheight = *(pgridsize + 1);
+	windowwidth = *pwindowsize;
+	windowheight = *(pwindowsize + 1);
+	GLOBAL_GRID = new cell**[gridwidth];
+	for (int i = 0; i < gridwidth; i++)
 	{
-		GLOBAL_GRID[i] = new cell*[y];
+		GLOBAL_GRID[i] = new cell*[gridheight];
 	}
-	*pgridsize = x;
-	*(pgridsize + 1) = y;
-	fill_grid(&GLOBAL_GRID, &DrawList, x, y);
+
+	fill_grid(&GLOBAL_GRID, &DrawList, gridwidth, gridheight);
 
 	// standard GLUT initialization 
 	windowname = "Final Task: Game Of Life";
 	//readEDIF("test2.edif");
 	glutInit(&argc,argv);
-	init(width, height);
+	paused = true;
+	init();
 	printf("starting Glut Loop...\n");
 	glutMainLoop();				// Start drawing proceidure
 	return 0;
 }
 //---------------------------------------------------------------------------
-
-string findstring(string line)
-{
-	int first = line.find_first_of("\"");
-	int last = line.find_last_of("\"");
-	return line.substr(first, last - first);
-}
-
-void readEDIF(string fname)
-{
-	ifstream file;
-	string fline;
-	file.open(fname);
-	if (file.fail())
-	{
-		cout << "Error reading file " << fname << endl;
-		return;
-	}
-	cout << "Parsing file " << fname << endl;
-	while (getline(file, fline))
-	{
-		stringstream sstream(fline);
-		string command, title, ftext;
-		float p1[2], p2[2], clr[3], width;
-		pixel* pxl;
-		line* ln;
-		text* txt;
-
-		if (fline[0] != '.' || fline ==  "")
-		{
-			//comment line
-			continue;
-		}
-
-		switch (fline[1])
-		{
-		case 'd': //change window title
-			windowname = findstring(sstream.str());
-			cout << "Parsed windowname: " << windowname << endl;
-			break;
-		case 'p': //draw pixel
-			sstream >> command >> p1[0] >> p1[1] >> clr[0] >> clr[1] >> clr[2];
-			pxl = new pixel(&DrawList, p1, clr);
-			cout << "Parsed a pixel: ";
-			pxl->print();
-			break;
-		case 't': //draw text
-			sstream >> command >> p1[0] >> p1[1] >> clr[0] >> clr[1] >> clr[2];
-			ftext = findstring(sstream.str());
-			txt = new text(&DrawList, ftext, clr, p1[0], p1[1]);
-			cout << "Parsed a string: ";
-			txt->print();
-			break;
-		case 'l': //draw line
-			sstream >> command >> p1[0] >> p1[1] >> p2[0] >> p2[1] >> clr[0] >> clr[1] >> clr[2] >> width;
-			ln = new line(&DrawList, p1, p2, clr, width);
-			cout << "Parsed a line: ";
-			ln->print();
-			break;
-		}
-	}
-}

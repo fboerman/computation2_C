@@ -27,19 +27,25 @@
     <ClCompile Include="GameOfLife.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dlist.h">
+    <ClInclude Include="main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOfLife.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="drawtools.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="main.h">
+    <ClInclude Include="dlist.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameOfLife.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Parser.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
