@@ -257,16 +257,15 @@ void square::print() const
 void square::draw()
 {
 	float p3[2], p4[2];
-	//p1 is topleft, p2 is bottomright, p3 is topright, p4 is bottomleft
+	float qp1[2], qp2[2], qp3[2], qp4[2];
 	//////////
-	//p1	p3
 	//p4	p2
+	//p1	p3
 	//////////
 	p4[0] = _p1[0];
 	p4[1] = _p2[1];
 	p3[0] = _p2[0];
 	p3[1] = _p1[1];
-
 
 	glLineWidth(1);
 
@@ -275,36 +274,61 @@ void square::draw()
 		glBegin(GL_QUADS);
 			glColor3fv(_fillcolor);
 			glVertex2fv(_p1);
-			glVertex2fv(p3);
-			glVertex2fv(_p2);
 			glVertex2fv(p4);
+			glVertex2fv(_p2);
+			glVertex2fv(p3);
 		glEnd();
 		//check the whitelines
 		glBegin(GL_LINES);
-		float clr[3] = { 1 , 1 , 1 };
-		glColor3fv(clr);
-		for (char& c : _neighbors)
+		float whiteline[3] = { 1 , 1 , 1 };
+		//check all sides, if neighbor than draw whiteline, otherwise draw the linecolor line
+		//up
+		if (_neighbors.find("u") != string::npos)
 		{
-			switch (c)
-			{
-			case 'l': //left
-				glVertex2fv(_p1);
-				glVertex2fv(p4);
-				break;
-			case 'u': //up
-				glVertex2fv(_p1);
-				glVertex2fv(p3);
-				break;
-			case 'r': //right
-				glVertex2fv(p3);
-				glVertex2fv(_p2);
-				break;
-			case 'd': //down/bottom
-				glVertex2fv(_p2);
-				glVertex2fv(p4);
-				break;
-			}
+			glColor3fv(whiteline);
 		}
+		else
+		{
+			glColor3fv(_linecolor);
+		}
+		glVertex2fv(p4);
+		glVertex2fv(_p2);
+
+		//right
+		if (_neighbors.find("r") != string::npos)
+		{
+			glColor3fv(whiteline);
+		}
+		else
+		{
+			glColor3fv(_linecolor);
+		}
+		glVertex2fv(p3);
+		glVertex2fv(_p2);
+
+		//down
+		if (_neighbors.find("d") != string::npos)
+		{
+			glColor3fv(whiteline);
+		}
+		else
+		{
+			glColor3fv(_linecolor);
+		}
+		glVertex2fv(_p1);
+		glVertex2fv(p3);
+
+		//left
+		if (_neighbors.find("l") != string::npos)
+		{
+			glColor3fv(whiteline);
+		}
+		else
+		{
+			glColor3fv(_linecolor);
+		}
+		glVertex2fv(_p1);
+		glVertex2fv(p4);
 		glEnd();
 	}
 	else

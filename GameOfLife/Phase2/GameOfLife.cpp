@@ -76,10 +76,10 @@ void cell::CheckNeighbors(int x, int y)
 {
 	_square->Clear_Neighbors();
 	//up
-	if (GLOBAL_GRID[x][calc_wraparound(y-1,gridheight)]->get_status())
+	if (GLOBAL_GRID[x][calc_wraparound(y + 1,gridheight)]->get_status())
 	{
 		_square->Set_Neighbor('u');
-		GLOBAL_GRID[x][calc_wraparound(y - 1, gridheight)]->SetNeighbor('d');
+		GLOBAL_GRID[x][calc_wraparound(y + 1, gridheight)]->SetNeighbor('d');
 	}
 	//right
 	if (GLOBAL_GRID[calc_wraparound(x + 1,gridwidth)][y]->get_status())
@@ -88,10 +88,10 @@ void cell::CheckNeighbors(int x, int y)
 		GLOBAL_GRID[calc_wraparound(x + 1, gridwidth)][y]->SetNeighbor('l');
 	}
 	//bottom
-	if (GLOBAL_GRID[x][calc_wraparound(y + 1, gridheight)]->get_status())
+	if (GLOBAL_GRID[x][calc_wraparound(y - 1, gridheight)]->get_status())
 	{
 		_square->Set_Neighbor('d');
-		GLOBAL_GRID[x][calc_wraparound(y + 1, gridheight)]->SetNeighbor('u');
+		GLOBAL_GRID[x][calc_wraparound(y - 1, gridheight)]->SetNeighbor('u');
 	}
 	//left
 	if (GLOBAL_GRID[calc_wraparound(x - 1, gridwidth)][y]->get_status())
