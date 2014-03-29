@@ -20,8 +20,6 @@ string windowname;
 //extern cell*** GLOBAL_GRID; //2d array with format [x][y] of pointers to cell class
 int windowheight;
 int windowwidth;
-int gridheight;
-int gridwidth;
 bool paused;
 bool leftmousedown;
 int CELL_DIMENSION = 30;

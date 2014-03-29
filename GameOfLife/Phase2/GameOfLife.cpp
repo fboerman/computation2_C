@@ -17,7 +17,7 @@ using namespace std;
 #include "GameOfLife.h"
 #include "dlist.h"
 #include "drawtools.h"
-
+#include "SharedGlobals.h"
 
 
 cell::cell(const int age, square* sqr, const int status)
@@ -72,6 +72,40 @@ void cell::flush_buffer()
 	}
 }
 
+void cell::CheckNeighbors(int x, int y)
+{
+	_square->Clear_Neighbors();
+	//up
+	if (GLOBAL_GRID[x][calc_wraparound(y-1,gridheight)]->get_status())
+	{
+		_square->Set_Neighbor('u');
+		GLOBAL_GRID[x][calc_wraparound(y - 1, gridheight)]->SetNeighbor('d');
+	}
+	//right
+	if (GLOBAL_GRID[calc_wraparound(x + 1,gridwidth)][y]->get_status())
+	{
+		_square->Set_Neighbor('r');
+		GLOBAL_GRID[calc_wraparound(x + 1, gridwidth)][y]->SetNeighbor('l');
+	}
+	//bottom
+	if (GLOBAL_GRID[x][calc_wraparound(y + 1, gridheight)]->get_status())
+	{
+		_square->Set_Neighbor('d');
+		GLOBAL_GRID[x][calc_wraparound(y + 1, gridheight)]->SetNeighbor('u');
+	}
+	//left
+	if (GLOBAL_GRID[calc_wraparound(x - 1, gridwidth)][y]->get_status())
+	{
+		_square->Set_Neighbor('l');
+		GLOBAL_GRID[calc_wraparound(x - 1, gridwidth)][y]->SetNeighbor('r');
+	}
+}
+
+void cell::SetNeighbor(char n)
+{
+	_square->Set_Neighbor(n);
+}
+
 //help functions
 
 int* calc_grid_size(const int* windowsize, const int cell_dimension)
@@ -99,10 +133,9 @@ int* calc_window_size(const int* gridsize, const int cell_dimension)
 }
 
 
-void fill_grid(cell**** p_DA_GRID, dlist* drawlist, const int xsize, const int ysize, const int cell_dimension)
+void fill_grid(dlist* drawlist, const int xsize, const int ysize, const int cell_dimension)
 {
 	float clr[3] = { 0, 0, 0.5 };
-	cell*** DA_GRID = *p_DA_GRID;
 	//iterate trough the grid, grid has format [x][y]
 	for (int y = 0; y < ysize; y++)
 	{
@@ -117,45 +150,44 @@ void fill_grid(cell**** p_DA_GRID, dlist* drawlist, const int xsize, const int y
 			p2[0] = (x + 1) * cell_dimension;
 			//create the cell and coresponding square
 			square* sqr = new square(drawlist, p1, p2, LINECOLOR, CELLCOLOR);
-			DA_GRID[x][y] = new cell(0, sqr, 0);
+			GLOBAL_GRID[x][y] = new cell(0, sqr, 0);
 		}
 	}
 
 }
 
-void Tick(cell**** p_DA_GRID, const int gridwidth, const int gridheight)
+void Tick()
 {
 	//calculate the new generation
-	cell*** DA_GRID = *p_DA_GRID;
 	for (int x = 0; x < gridwidth; x++)
 	{
 		for (int y = 0; y < gridheight; y++)
 		{
 			//use wraparound formula
 			//count the neighbours
-			int neighbors = DA_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y + 1, gridheight)]->get_status() + DA_GRID[x][calc_wraparound(y + 1, gridheight)]->get_status() + DA_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y + 1,gridheight)]->get_status() +
-				DA_GRID[calc_wraparound(x - 1, gridwidth)][y]->get_status() + DA_GRID[calc_wraparound(x + 1,gridwidth)][y]->get_status() +
-				DA_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y - 1, gridheight)]->get_status() + 
-				DA_GRID[x][calc_wraparound(y - 1, gridheight)]->get_status() + 
-				DA_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y - 1,gridheight)]->get_status();
+			int neighbors = GLOBAL_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y + 1, gridheight)]->get_status() + GLOBAL_GRID[x][calc_wraparound(y + 1, gridheight)]->get_status() + GLOBAL_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y + 1,gridheight)]->get_status() +
+				GLOBAL_GRID[calc_wraparound(x - 1, gridwidth)][y]->get_status() + GLOBAL_GRID[calc_wraparound(x + 1,gridwidth)][y]->get_status() +
+				GLOBAL_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y - 1, gridheight)]->get_status() + 
+				GLOBAL_GRID[x][calc_wraparound(y - 1, gridheight)]->get_status() + 
+				GLOBAL_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y - 1,gridheight)]->get_status();
 
 			//any live cell with fewer than two live neighbours dies, as if by loneliness
-			if ((neighbors < 2) && DA_GRID[x][y]->get_status())
+			if ((neighbors < 2) && GLOBAL_GRID[x][y]->get_status())
 			{
-				DA_GRID[x][y]->flip();
+				GLOBAL_GRID[x][y]->flip();
 				continue;
 			}
 			//Any live cell with more than three live neighbours dies, as if by overcrowding
-			if ((neighbors > 3) && DA_GRID[x][y]->get_status())
+			if ((neighbors > 3) && GLOBAL_GRID[x][y]->get_status())
 			{
-				DA_GRID[x][y]->flip();
+				GLOBAL_GRID[x][y]->flip();
 				continue;
 			}
 
 			//any dead cell with exactly three live neighbours comes to life
-			if ((neighbors == 3) && !DA_GRID[x][y]->get_status())
+			if ((neighbors == 3) && !GLOBAL_GRID[x][y]->get_status())
 			{
-				DA_GRID[x][y]->flip();
+				GLOBAL_GRID[x][y]->flip();
 				continue;
 			}
 			//Any live cell with two or three live neighbours live, unchanged, to the next generation
@@ -168,7 +200,16 @@ void Tick(cell**** p_DA_GRID, const int gridwidth, const int gridheight)
 	{
 		for (int y = 0; y < gridheight; y++)
 		{
-			DA_GRID[x][y]->flush_buffer();
+			GLOBAL_GRID[x][y]->flush_buffer();
+		}
+	}
+	//this has to be done in seperate loop, otherwise not the most update info is used
+	//update the whitelines
+	for (int x = 0; x < gridwidth; x++)
+	{
+		for (int y = 0; y < gridheight; y++)
+		{
+			GLOBAL_GRID[x][y]->CheckNeighbors(x, y);
 		}
 	}
 }

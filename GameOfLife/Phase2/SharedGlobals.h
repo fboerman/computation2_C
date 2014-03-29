@@ -10,5 +10,6 @@
 #include "GameOfLife.h"
 
 extern cell*** GLOBAL_GRID;
-
+extern int gridwidth;
+extern int gridheight;
 #endif

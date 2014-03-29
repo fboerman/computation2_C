@@ -16,6 +16,8 @@
 
 using namespace std;
 cell*** GLOBAL_GRID;
+int gridwidth;
+int gridheight;
 
 #define _USE_MATH_DEFINES // Signal math.h that we would like defines like M_PI
 #include <math.h> // Might come in usefull for cosine functions and stuff like that
@@ -68,7 +70,7 @@ void Time_Tick(int id)
 	{
 		return;
 	}
-	Tick(&GLOBAL_GRID, gridwidth, gridheight);
+	Tick();
 	glutTimerFunc(500, Time_Tick, 0);
 	glutPostRedisplay();
 }
@@ -85,7 +87,7 @@ void keypress(unsigned char key, int x, int y)
 		Time_Tick(0);
 		break;
 	case 'n':
-		Tick(&GLOBAL_GRID, gridwidth, gridheight);
+		Tick();
 		glutPostRedisplay();
 		break;
 	case 'r':
@@ -277,6 +279,7 @@ void mouseClick(int button, int state, int x, int y)
 		if (xgrid < gridwidth && ygrid < gridheight)
 		{
 			GLOBAL_GRID[xgrid][ygrid]->flip_flush();
+			GLOBAL_GRID[xgrid][ygrid]->CheckNeighbors(xgrid, ygrid);
 			glutPostRedisplay();
 		}
 	}
@@ -294,6 +297,8 @@ int main(int argc, char* argv[]) //arguments: .exe path, fixed windowsize(0)/fix
 	int* pgridsize;
 	int* pwindowsize;
 
+	gridheight = 0;
+	gridwidth = 0;
 	if (argc < 6)
 	{
 		cout << "Not enough input arguments" << endl;
@@ -315,8 +320,6 @@ int main(int argc, char* argv[]) //arguments: .exe path, fixed windowsize(0)/fix
 		}
 		windowwidth = *(size);
 		windowheight = *(size + 1);
-		gridwidth = windowwidth / CELL_DIMENSION;
-		gridheight = windowheight / CELL_DIMENSION;
 	}
 	else
 	{
@@ -354,7 +357,7 @@ int main(int argc, char* argv[]) //arguments: .exe path, fixed windowsize(0)/fix
 			GLOBAL_GRID[i] = new cell*[gridheight];
 		}
 
-		fill_grid(&GLOBAL_GRID, &DrawList, gridwidth, gridheight,CELL_DIMENSION);
+		fill_grid(&DrawList, gridwidth, gridheight,CELL_DIMENSION);
 	}
 	//float clr[3] = { 0.5, 0, 0 };
 	//new text(&DrawList, "TESTSTRING", clr, 100, 100);

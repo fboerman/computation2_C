@@ -21,8 +21,8 @@
 
 using namespace std;
 
-int test = numeric_limits<int>::max();
-
+//int gridheight;
+//int gridwidth;
 
 int* GOLParser(std::string filename, int maxwidht, int maxheight, dlist* DrawList, int* cell_dimension)
 {
@@ -113,8 +113,8 @@ int* GOLParser(std::string filename, int maxwidht, int maxheight, dlist* DrawLis
 		gridsize[1] = maxheight;
 	}
 	//create the width row
-	int gridheight = gridsize[1] / *cell_dimension;
-	int gridwidth = (gridsize[0] / *cell_dimension);
+	gridheight = gridsize[1] / *cell_dimension;
+	gridwidth = (gridsize[0] / *cell_dimension);
 	GLOBAL_GRID = new cell**[gridsize[0] / *cell_dimension];
 	float p1[2], p2[2];
 	int gridy = gridsize[1] / *cell_dimension;
@@ -133,7 +133,7 @@ int* GOLParser(std::string filename, int maxwidht, int maxheight, dlist* DrawLis
 			//create the new square
 			square* sqr = new square(DrawList, p1, p2, LINECOLOR, CELLCOLOR);
 			//check if were outside the sidebands
-			if (x >= WHITEBAND && y >= WHITEBAND && (y-WHITEBAND) < parsedfile->len() && x < maxsizex){
+			if (x >= WHITEBAND && y >= WHITEBAND && (y-WHITEBAND) < parsedfile->len() && (x-WHITEBAND) < maxsizex){
 				//check if x is in reange of the parsed line
 				string line = parsedfile->Get_String((parsedfile->len() - 1) - (y - WHITEBAND));
 				if ((x - WHITEBAND) >= (int)line.size())
@@ -163,6 +163,14 @@ int* GOLParser(std::string filename, int maxwidht, int maxheight, dlist* DrawLis
 		}
 	}
 	cout << "dimension calculated: " << *cell_dimension << " gridwidth: " << gridwidth << " gridheight: " << gridheight << endl;
+	//update the whitelines
+	for (int x = 0; x < gridwidth; x++)
+	{
+		for (int y = 0; y < gridheight; y++)
+		{
+			GLOBAL_GRID[x][y]->CheckNeighbors(x, y);
+		}
+	}
 	//return the size
 	return gridsize;
 }

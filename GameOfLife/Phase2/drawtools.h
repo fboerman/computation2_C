@@ -118,6 +118,9 @@ public:
 	void draw(void);
 	void flip(void);
 	int get_status(void);
+	void Set_Neighbor(char n);
+	void Del_Neighbor(char n);
+	void Clear_Neighbors(void);
 
 private:
 	float _p1[2];//actual drawing position
@@ -127,6 +130,7 @@ private:
 	int _filled;
 	int _x; //position in the grid
 	int _y;
+	std::string _neighbors; //string which holds coding for neighbors(up(u)/down(d)/right(r)/left(l)
 };
 
 #endif

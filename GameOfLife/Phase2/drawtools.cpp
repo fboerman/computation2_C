@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 #include <GL/glut.h>
@@ -278,6 +279,33 @@ void square::draw()
 			glVertex2fv(_p2);
 			glVertex2fv(p4);
 		glEnd();
+		//check the whitelines
+		glBegin(GL_LINES);
+		float clr[3] = { 1 , 1 , 1 };
+		glColor3fv(clr);
+		for (char& c : _neighbors)
+		{
+			switch (c)
+			{
+			case 'l': //left
+				glVertex2fv(_p1);
+				glVertex2fv(p4);
+				break;
+			case 'u': //up
+				glVertex2fv(_p1);
+				glVertex2fv(p3);
+				break;
+			case 'r': //right
+				glVertex2fv(p3);
+				glVertex2fv(_p2);
+				break;
+			case 'd': //down/bottom
+				glVertex2fv(_p2);
+				glVertex2fv(p4);
+				break;
+			}
+		}
+		glEnd();
 	}
 	else
 	{
@@ -298,9 +326,45 @@ void square::draw()
 void square::flip()
 {
 	_filled = !_filled;
+	if (!_filled)
+	{
+		Clear_Neighbors();
+	}
 }
 
 int square::get_status()
 {
 	return _filled;
+}
+
+void square::Set_Neighbor(char n)
+{
+	for (char& c : _neighbors)
+	{
+		if (c == n)
+		{
+			return;
+		}
+	}
+	stringstream stream;
+	stream << _neighbors << n;
+	_neighbors = stream.str();
+}
+
+void square::Del_Neighbor(char n)
+{
+	stringstream stream;
+	for (char& c : _neighbors)
+	{
+		if (c != n)
+		{
+			stream << c;
+		}
+	}
+	_neighbors = stream.str();
+}
+
+void square::Clear_Neighbors()
+{
+	_neighbors = "";
 }

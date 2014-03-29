@@ -43,6 +43,10 @@ public:
 	void age(void);
 	//flushes the buffer to drawlist
 	void flush_buffer(void);
+	//checks all the neighbors and updates the whitelines of a square
+	void CheckNeighbors(int x, int y);
+	//sets a neighbor
+	void SetNeighbor(char n);
 
 	int get_age(void);
 	int get_status(void);
@@ -55,6 +59,7 @@ private:
 
 //help functions
 
+
 //calculates ammount of cells possible on window with given windowsize and cell dimension
 int* calc_grid_size(const int* windowsize, const int cell_dimension);
 
@@ -62,10 +67,10 @@ int* calc_grid_size(const int* windowsize, const int cell_dimension);
 int* calc_window_size(const int* gridsize, const int cell_dimension);
 
 //fills give grid with empty cells (dead and with 0 age) and adds it to drawlist
-void fill_grid(cell**** p_DA_GRID, dlist* drawlist, const int xsize, const int ysize, const int cell_dimension);
+void fill_grid(dlist* drawlist, const int xsize, const int ysize, const int cell_dimension);
 
 //checks the whole grid and advances it one generation
-void Tick(cell**** p_DA_GRID, const int gridwidth, const int gridheight);
+void Tick(void);
 
 //calculates the wraparound coordinate
 int calc_wraparound(int index, int maxsize);
