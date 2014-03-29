@@ -249,6 +249,7 @@ square::~square()
 
 void square::print() const
 {
+	cout << ".square " << _p1[0] << " " << _p1[1] << " " << _p2[0] << " " << _p2[1] << " " << _linecolor[0] << " " << _linecolor[1] << " " << _linecolor[2] << " " << _fillcolor[0] << " " << _fillcolor[1] << " " << _fillcolor[2] << endl;
 }
 
 
@@ -264,6 +265,7 @@ void square::draw()
 	p4[1] = _p2[1];
 	p3[0] = _p2[0];
 	p3[1] = _p1[1];
+
 
 	glLineWidth(1);
 

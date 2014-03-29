@@ -17,12 +17,14 @@ void init();
 stringstream keytext;
 dlist DrawList;
 string windowname;
-cell*** GLOBAL_GRID; //2d array with format [x][y] of pointers to cell class
+//extern cell*** GLOBAL_GRID; //2d array with format [x][y] of pointers to cell class
 int windowheight;
 int windowwidth;
 int gridheight;
 int gridwidth;
 bool paused;
+bool leftmousedown;
+int CELL_DIMENSION = 30;
 
 // glut callback
 void reshape(int w, int h);

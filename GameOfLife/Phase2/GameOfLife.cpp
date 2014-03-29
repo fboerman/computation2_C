@@ -18,21 +18,24 @@ using namespace std;
 #include "dlist.h"
 #include "drawtools.h"
 
-//define colors of the cells at the start
-float LINECOLOR[3] = { 0.0, 0.5, 0.0 };
-float CELLCOLOR[3] = { 0.0, 0.0, 0.5 };
 
-cell::cell(const int age, square* sqr)
+
+cell::cell(const int age, square* sqr, const int status)
 {
 	assert(sqr);
 	_age = age;
 	_square = sqr;
 	_bufferstatus = 0;
+	if (status)
+	{
+		_square->flip();
+		_bufferstatus = 1;
+	}
 }
 
 cell::~cell()
 {
-
+	delete _square;
 }
 
 void cell::flip()
@@ -96,7 +99,7 @@ int* calc_window_size(const int* gridsize, const int cell_dimension)
 }
 
 
-void fill_grid(cell**** p_DA_GRID, dlist* drawlist, const int xsize, const int ysize)
+void fill_grid(cell**** p_DA_GRID, dlist* drawlist, const int xsize, const int ysize, const int cell_dimension)
 {
 	float clr[3] = { 0, 0, 0.5 };
 	cell*** DA_GRID = *p_DA_GRID;
@@ -105,16 +108,16 @@ void fill_grid(cell**** p_DA_GRID, dlist* drawlist, const int xsize, const int y
 	{
 		float p1[2], p2[2];//p1 is topleft, p2 is bottomright
 		//calculate y
-		p1[1] = y * CELL_DIMENSION;
-		p2[1] = (y + 1) * CELL_DIMENSION;
+		p1[1] = y * cell_dimension;
+		p2[1] = (y + 1) * cell_dimension;
 		for (int x = 0; x < xsize; x++)
 		{
 			//calculate x
-			p1[0] = x * CELL_DIMENSION;
-			p2[0] = (x + 1) * CELL_DIMENSION;
+			p1[0] = x * cell_dimension;
+			p2[0] = (x + 1) * cell_dimension;
 			//create the cell and coresponding square
 			square* sqr = new square(drawlist, p1, p2, LINECOLOR, CELLCOLOR);
-			DA_GRID[x][y] = new cell(0, sqr);
+			DA_GRID[x][y] = new cell(0, sqr, 0);
 		}
 	}
 
@@ -132,7 +135,9 @@ void Tick(cell**** p_DA_GRID, const int gridwidth, const int gridheight)
 			//count the neighbours
 			int neighbors = DA_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y + 1, gridheight)]->get_status() + DA_GRID[x][calc_wraparound(y + 1, gridheight)]->get_status() + DA_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y + 1,gridheight)]->get_status() +
 				DA_GRID[calc_wraparound(x - 1, gridwidth)][y]->get_status() + DA_GRID[calc_wraparound(x + 1,gridwidth)][y]->get_status() +
-				DA_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y - 1, gridheight)]->get_status() + DA_GRID[x][calc_wraparound(y - 1, gridheight)]->get_status() + DA_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y - 1,gridheight)]->get_status();
+				DA_GRID[calc_wraparound(x - 1, gridwidth)][calc_wraparound(y - 1, gridheight)]->get_status() + 
+				DA_GRID[x][calc_wraparound(y - 1, gridheight)]->get_status() + 
+				DA_GRID[calc_wraparound(x + 1, gridwidth)][calc_wraparound(y - 1,gridheight)]->get_status();
 
 			//any live cell with fewer than two live neighbours dies, as if by loneliness
 			if ((neighbors < 2) && DA_GRID[x][y]->get_status())
