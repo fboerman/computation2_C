@@ -12,4 +12,6 @@
 extern cell*** GLOBAL_GRID;
 extern int gridwidth;
 extern int gridheight;
+extern bool colourmode;
+extern int colourscheme;
 #endif

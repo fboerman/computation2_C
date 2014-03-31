@@ -18,6 +18,7 @@
 #include <limits>
 #include <sstream>
 #include "SharedGlobals.h"
+#include "Colours.h"
 
 using namespace std;
 
@@ -131,14 +132,14 @@ int* GOLParser(std::string filename, int maxwidht, int maxheight, dlist* DrawLis
 			p1[1] = y * (int)*cell_dimension;
 			p2[1] = (y + 1) * (int)*cell_dimension;
 			//create the new square
-			square* sqr = new square(DrawList, p1, p2, LINECOLOR, CELLCOLOR);
+			square* sqr = new square(DrawList, p1, p2, LINECOLOR, Blue);
 			//check if were outside the sidebands
 			if (x >= WHITEBAND && y >= WHITEBAND && (y-WHITEBAND) < parsedfile->len() && (x-WHITEBAND) < maxsizex){
 				//check if x is in reange of the parsed line
 				string line = parsedfile->Get_String((parsedfile->len() - 1) - (y - WHITEBAND));
 				if ((x - WHITEBAND) >= (int)line.size())
 				{
-					GLOBAL_GRID[x][y] = new cell(0, sqr, 0);
+					GLOBAL_GRID[x][y] = new cell(sqr, 0);
 				}
 				else
 				{
@@ -147,18 +148,18 @@ int* GOLParser(std::string filename, int maxwidht, int maxheight, dlist* DrawLis
 					//cout << "DEBUG: x: " << x << " y:" << y << endl;
 					if (line[x - WHITEBAND] == 'O')
 					{
-						GLOBAL_GRID[x][y] = new cell(0, sqr, 1);
+						GLOBAL_GRID[x][y] = new cell(sqr, 1);
 					}
 					else
 					{
-						GLOBAL_GRID[x][y] = new cell(0, sqr, 0);
+						GLOBAL_GRID[x][y] = new cell(sqr, 0);
 					}
 				}
 			}
 			else
 			{
 				//if not than just insert empty cell
-				GLOBAL_GRID[x][y] = new cell(0, sqr, 0);
+				GLOBAL_GRID[x][y] = new cell(sqr, 0);
 			}
 		}
 	}

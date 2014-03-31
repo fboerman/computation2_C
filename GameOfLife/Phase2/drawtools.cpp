@@ -392,3 +392,12 @@ void square::Clear_Neighbors()
 {
 	_neighbors = "";
 }
+
+void square::Set_Colour(const float colour[3])
+{
+	float c[3];
+	_fillcolor[0] = (float)colour[0] / (float)255;
+	_fillcolor[1] = (float)colour[1] / (float)255;
+	_fillcolor[2] = (float)colour[2] / (float)255;
+	//copy_array(c, _fillcolor);
+}

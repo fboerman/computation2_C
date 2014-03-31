@@ -17,7 +17,6 @@
 
 //global
 const float LINECOLOR[3] = { 0.0, 0.5, 0.0 };
-const float CELLCOLOR[3] = { 0.0, 0.0, 0.5 };
 //forward declaration
 class cell;
 
@@ -32,7 +31,7 @@ class cell;
 class cell
 {
 public:
-	cell(const int age, square* sqr,const int status);
+	cell(square* sqr,const int status);
 	~cell(void);
 
 	//flips the buffer
@@ -47,6 +46,8 @@ public:
 	void CheckNeighbors(int x, int y);
 	//sets a neighbor
 	void SetNeighbor(char n);
+	//updates the filling colour
+	void Calc_Color(void);
 
 	int get_age(void);
 	int get_status(void);
@@ -74,5 +75,8 @@ void Tick(void);
 
 //calculates the wraparound coordinate
 int calc_wraparound(int index, int maxsize);
+
+//forces a recalculation for all the colours of the grid
+void ReCalc_Colours(void);
 
 #endif

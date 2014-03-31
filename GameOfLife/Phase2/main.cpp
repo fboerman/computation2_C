@@ -13,11 +13,14 @@
 #include <iostream>
 #include <list>
 #include "SharedGlobals.h"
+#include "Colours.h"
 
 using namespace std;
 cell*** GLOBAL_GRID;
 int gridwidth;
 int gridheight;
+bool colourmode;
+int colourscheme;
 
 #define _USE_MATH_DEFINES // Signal math.h that we would like defines like M_PI
 #include <math.h> // Might come in usefull for cosine functions and stuff like that
@@ -71,7 +74,26 @@ void Time_Tick(int id)
 		return;
 	}
 	Tick();
-	glutTimerFunc(500, Time_Tick, 0);
+	int time;
+	switch (speed)
+	{
+	case 1:
+		time = 500;
+		break;
+	case 2:
+		time = 250;
+		break;
+	case 3:
+		time = 100;
+		break;
+	case 4:
+		time = 50;
+		break;
+	default:
+		time = 500;
+		break;
+	}
+	glutTimerFunc(time, Time_Tick, 0);
 	glutPostRedisplay();
 }
 
@@ -102,6 +124,30 @@ void keypress(unsigned char key, int x, int y)
 			}
 		}
 		glutPostRedisplay();
+		break;
+	case '1':
+		speed = 1;
+		break;
+	case '2':
+		speed = 2;
+		break;
+	case '3':
+		speed = 3;
+		break;
+	case '4':
+		speed = 4;
+		break;
+	case 'q':
+		colourscheme = 1;
+		ReCalc_Colours();
+		break;
+	case 'w':
+		colourscheme = 2;
+		ReCalc_Colours();
+		break;
+	case 'e':
+		colourscheme = 3;
+		ReCalc_Colours();
 		break;
 	}
 	
@@ -211,8 +257,8 @@ void reshape(int w, int h)
 				}
 				else if (x < gridwidth)
 				{
-					square* sqr = new square(&DrawList, p1, p2, LINECOLOR, CELLCOLOR);
-					GLOBAL_GRID[x][y] = new cell(0, sqr, 0);
+					square* sqr = new square(&DrawList, p1, p2, LINECOLOR, Blue);
+					GLOBAL_GRID[x][y] = new cell(sqr, 0);
 				}
 				else if (x > gridwidth)
 				{
@@ -280,6 +326,7 @@ void mouseClick(int button, int state, int x, int y)
 		{
 			GLOBAL_GRID[xgrid][ygrid]->flip_flush();
 			GLOBAL_GRID[xgrid][ygrid]->CheckNeighbors(xgrid, ygrid);
+			GLOBAL_GRID[xgrid][ygrid]->Calc_Color();
 			glutPostRedisplay();
 		}
 	}
@@ -292,6 +339,8 @@ void mouseClick(int button, int state, int x, int y)
 //---------------------------------------------------------------------------
 int main(int argc, char* argv[]) //arguments: .exe path, fixed windowsize(0)/fixed gridsize(1), fixed x, fixed y, fileload(0/1), filename
 {
+	colourmode = true;
+	colourscheme = 1;
 	int gridsize[2];
 	int windowsize[2];
 	int* pgridsize;

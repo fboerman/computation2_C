@@ -18,12 +18,24 @@ using namespace std;
 #include "dlist.h"
 #include "drawtools.h"
 #include "SharedGlobals.h"
+#include "Colours.h"
 
+//const float Blue[3];
+//const float Cobalt[3];
+//const float RoyalBlue[3];
+//const float RoyalBlue1[3];
+//const float RoyalBlue2[3];
+//const float RoyalBlue3[3];
+//const float RoyalBlue4[3];
+//const float MidnightBlue[3];
 
-cell::cell(const int age, square* sqr, const int status)
+//bool colourmode;
+//int colourscheme;
+
+cell::cell(square* sqr, const int status)
 {
 	assert(sqr);
-	_age = age;
+	_age = 0;
 	_square = sqr;
 	_bufferstatus = 0;
 	if (status)
@@ -47,6 +59,10 @@ void cell::flip_flush()
 {
 	_square->flip();
 	_bufferstatus = _square->get_status();
+	if (_bufferstatus == 0)
+	{
+		_age = 0;
+	}
 }
 
 int cell::get_age()
@@ -106,6 +122,44 @@ void cell::SetNeighbor(char n)
 	_square->Set_Neighbor(n);
 }
 
+void cell::Calc_Color()
+{
+	if (colourmode)
+	{
+		if (this->get_status())
+		{
+			int pos;
+			if (_age < 6)
+			{
+				pos = _age;
+			}
+			else
+			{
+				pos = 5;
+			}
+
+			switch (colourscheme)
+			{
+			case 1:
+				_square->Set_Colour(colourscheme1[pos]);
+				break;
+			case 2:
+				_square->Set_Colour(colourscheme2[pos]);
+				break;
+			case 3:
+				_square->Set_Colour(colourscheme3[pos]);
+				break;
+			}
+
+		}
+		else
+		{
+			_age = 0;
+			_square->Set_Colour(Blue);
+		}
+	}
+}
+
 //help functions
 
 int* calc_grid_size(const int* windowsize, const int cell_dimension)
@@ -149,8 +203,8 @@ void fill_grid(dlist* drawlist, const int xsize, const int ysize, const int cell
 			p1[0] = x * cell_dimension;
 			p2[0] = (x + 1) * cell_dimension;
 			//create the cell and coresponding square
-			square* sqr = new square(drawlist, p1, p2, LINECOLOR, CELLCOLOR);
-			GLOBAL_GRID[x][y] = new cell(0, sqr, 0);
+			square* sqr = new square(drawlist, p1, p2, LINECOLOR, Blue);
+			GLOBAL_GRID[x][y] = new cell(sqr, 0);
 		}
 	}
 
@@ -201,15 +255,18 @@ void Tick()
 		for (int y = 0; y < gridheight; y++)
 		{
 			GLOBAL_GRID[x][y]->flush_buffer();
+			
 		}
 	}
 	//this has to be done in seperate loop, otherwise not the most update info is used
-	//update the whitelines
+	//update the whitelines and colour
 	for (int x = 0; x < gridwidth; x++)
 	{
 		for (int y = 0; y < gridheight; y++)
 		{
 			GLOBAL_GRID[x][y]->CheckNeighbors(x, y);
+			GLOBAL_GRID[x][y]->age();
+			GLOBAL_GRID[x][y]->Calc_Color();
 		}
 	}
 }
@@ -217,4 +274,16 @@ void Tick()
 int calc_wraparound(int index, int maxsize)
 {
 	return (index + maxsize) % maxsize;
+}
+
+void ReCalc_Colours()
+{
+	for (int x = 0; x < gridwidth; x++)
+	{
+		for (int y = 0; y < gridheight; y++)
+		{
+			GLOBAL_GRID[x][y]->Calc_Color();
+		}
+	}
+	glutPostRedisplay();
 }

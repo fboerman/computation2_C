@@ -121,6 +121,7 @@ public:
 	void Set_Neighbor(char n);
 	void Del_Neighbor(char n);
 	void Clear_Neighbors(void);
+	void Set_Colour(const float colour[3]);
 
 private:
 	float _p1[2];//actual drawing position
@@ -128,8 +129,8 @@ private:
 	float _linecolor[3];
 	float _fillcolor[3];
 	int _filled;
-	int _x; //position in the grid
-	int _y;
+	//int _x; //position in the grid
+	//int _y;
 	std::string _neighbors; //string which holds coding for neighbors(up(u)/down(d)/right(r)/left(l)
 };
 

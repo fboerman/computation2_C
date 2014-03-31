@@ -17,6 +17,8 @@ void init();
 stringstream keytext;
 dlist DrawList;
 string windowname;
+int speed = 1;
+
 //extern cell*** GLOBAL_GRID; //2d array with format [x][y] of pointers to cell class
 int windowheight;
 int windowwidth;
