@@ -46,7 +46,7 @@ void init() //all glut callbacks and initializations
 	glutInitWindowPosition(0,0);					// Window appear in the top-left corner of the screen
 	glutCreateWindow(windowname.c_str());		// Window title
 	glutDisplayFunc(display);						// Main display function
-	//glutReshapeFunc(reshape);						// Reshape function, called when the window resizes
+	glutReshapeFunc(reshape);						// Reshape function, called when the window resizes
 	//glutKeyboardFunc(keypressed_debug);					//detects key pressing
 	glutMouseFunc(mouseClick);						//detects mouse click
 	glutTimerFunc(500, Time_Tick, 0);
@@ -182,7 +182,7 @@ void printtext(std::string text, int x, int y)
 //reshape help functions
 void reshape(int w, int h) 
 {
-	cout << "resizing" << endl;
+
 	int gridsize[2];
 	int windowsize[2];
 	int* pgridsize;
@@ -206,9 +206,10 @@ void reshape(int w, int h)
 	pgridsize = calc_grid_size(pwindowsize, CELL_DIMENSION);
 	if ((gridwidth == *pgridsize) && (gridheight == *(pgridsize + 1)))
 	{
-		cout << "No change" << endl;
+		//cout << "No change" << endl;
 		return;
 	}
+	//cout << w << " " << h << endl;
 	gridwidth = *pgridsize;
 	gridheight = *(pgridsize + 1);
 	windowwidth = w;
@@ -223,6 +224,7 @@ void reshape(int w, int h)
 	//copy pionters of old grid, delete and create cells where necesarry
 	if ((gridwidth < old_gridwidth) && (gridheight < old_gridheight))
 	{
+		//cout << gridwidth << " " << gridheight << endl;
 		//both x and y are smaller
 		for (int x = 0; x < old_gridwidth; x++)
 		{
@@ -239,10 +241,39 @@ void reshape(int w, int h)
 			}
 		}
 	}
-	else if ((gridwidth < old_gridwidth) && (gridheight > old_gridheight))
+	else if ((gridwidth < old_gridwidth) && (gridheight >= old_gridheight))
 	{
+		cout << gridwidth << " " << gridheight << endl;
 		//x is smaller but y is larger
 		for (int x = 0; x < old_gridwidth; x++)
+		{
+			float p1[2], p2[2];
+			p1[0] = x * CELL_DIMENSION;
+			p2[0] = (x + 1) * CELL_DIMENSION;
+			for (int y = 0; y < gridheight; y++)
+			{
+				p1[1] = y * CELL_DIMENSION;
+				p2[1] = (y + 1) * CELL_DIMENSION;
+				if (x < gridwidth && y < old_gridheight)
+				{
+					GLOBAL_GRID[x][y] = GRID_OLD[x][y];
+				}
+				else if (y >= old_gridheight && x < gridwidth)
+				{
+					square* sqr = new square(&DrawList, p1, p2, LINECOLOR, Blue);
+					GLOBAL_GRID[x][y] = new cell(sqr, 0);
+				}
+				else if (x >= gridwidth && y < old_gridheight)
+				{
+					delete GRID_OLD[x][y];
+				}
+			}
+		}
+	}
+	else if ((gridwidth >= old_gridwidth) && (gridheight < old_gridheight))
+	{
+		//x is larger but y is smaller
+		for (int x = 0; x < gridwidth; x++)
 		{
 			float p1[2], p2[2];
 			p1[0] = x * CELL_DIMENSION;
@@ -251,41 +282,47 @@ void reshape(int w, int h)
 			{
 				p1[1] = y * CELL_DIMENSION;
 				p2[1] = (y + 1) * CELL_DIMENSION;
-				if (x < gridwidth && y < old_gridheight)
+				if (x < old_gridwidth && y < gridheight )
 				{
 					GLOBAL_GRID[x][y] = GRID_OLD[x][y];
 				}
-				else if (x < gridwidth)
+				else if (x > old_gridwidth && y < gridheight)
 				{
 					square* sqr = new square(&DrawList, p1, p2, LINECOLOR, Blue);
 					GLOBAL_GRID[x][y] = new cell(sqr, 0);
 				}
-				else if (x > gridwidth)
+				else
 				{
-					delete GRID_OLD[x][y];
+					delete GLOBAL_GRID[x][y];
 				}
 			}
 		}
+
 	}
-	else if (gridwidth < old_gridwidth)
+	else if ((gridwidth >= old_gridwidth) && (gridheight >= old_gridheight))
 	{
-		//x is smaller but y stays the same
-		for (int x = 0; x < old_gridwidth; x++)
+		//both x and y are larger
+		for (int x = 0; x < gridwidth; x++)
 		{
-			for (int y = 0; y < old_gridheight; y++)
+			float p1[2], p2[2];
+			p1[0] = x * CELL_DIMENSION;
+			p2[0] = (x + 1) * CELL_DIMENSION;
+			for (int y = 0; y < gridheight; y++)
 			{
-				if (x < gridwidth)
+				p1[1] = y * CELL_DIMENSION;
+				p2[1] = (y + 1) * CELL_DIMENSION;
+				if (x < old_gridwidth && y < old_gridheight)
 				{
 					GLOBAL_GRID[x][y] = GRID_OLD[x][y];
 				}
 				else
 				{
-					delete GRID_OLD[x][y];
+					square* sqr = new square(&DrawList, p1, p2, LINECOLOR, Blue);
+					GLOBAL_GRID[x][y] = new cell(sqr, 0);
 				}
 			}
 		}
 	}
-	//else if ((gridwidth > old_gridwidth) && )
 	glutPostRedisplay();
 
 }
@@ -305,7 +342,7 @@ void display(void)
 	//iterate through the drawlist
 	dlist::ITER iter(&DrawList);
 	item* itemptr = 0;
-	while (itemptr = iter.next())
+	while (itemptr = iter.next()) //iterate through the drawlist
 	{
 		itemptr->draw(); //and draw the item
 	}
@@ -345,16 +382,26 @@ int main(int argc, char* argv[]) //arguments: .exe path, fixed windowsize(0)/fix
 	int windowsize[2];
 	int* pgridsize;
 	int* pwindowsize;
+	int fileload;
+	string filename;
 
 	gridheight = 0;
 	gridwidth = 0;
-	if (argc < 6)
+	if (argc < 4)
 	{
 		cout << "Not enough input arguments" << endl;
 		return -1;
 	}
-	int fileload = atoi(argv[4]);
-	string filename = argv[5];
+	else if (argc < 6)
+	{
+		fileload = 0;
+	}
+	else
+	{
+		fileload = atoi(argv[4]);
+		filename = argv[5];
+	}
+
 
 	if (fileload)
 	{

@@ -117,7 +117,7 @@ line::line(dlist* list, const float p1[2], const float p2[2],
 //
 line::~line(void)
 {
-
+	
 }
 //---------------------------------------------------------------------------
 //
@@ -245,7 +245,7 @@ square::square(dlist* list, const float p1[2], const float p2[2], const float li
 
 square::~square()
 {
-
+	remove_from_list();
 }
 
 void square::print() const
@@ -257,7 +257,6 @@ void square::print() const
 void square::draw()
 {
 	float p3[2], p4[2];
-	float qp1[2], qp2[2], qp3[2], qp4[2];
 	//////////
 	//p4	p2
 	//p1	p3
@@ -395,7 +394,6 @@ void square::Clear_Neighbors()
 
 void square::Set_Colour(const float colour[3])
 {
-	float c[3];
 	_fillcolor[0] = (float)colour[0] / (float)255;
 	_fillcolor[1] = (float)colour[1] / (float)255;
 	_fillcolor[2] = (float)colour[2] / (float)255;

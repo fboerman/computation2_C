@@ -189,7 +189,6 @@ int* calc_window_size(const int* gridsize, const int cell_dimension)
 
 void fill_grid(dlist* drawlist, const int xsize, const int ysize, const int cell_dimension)
 {
-	float clr[3] = { 0, 0, 0.5 };
 	//iterate trough the grid, grid has format [x][y]
 	for (int y = 0; y < ysize; y++)
 	{
