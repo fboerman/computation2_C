@@ -7,8 +7,7 @@
 #ifndef DRAWTOOLS_H // this avoids multiple inclusion of this file
 #define DRAWTOOLS_H
 
-//#include "main.h"
-#include "dlist.h"
+#include <list>
 
 class line;          // forward: the classes in this file
 class pixel;
@@ -22,19 +21,28 @@ void copy_array(const float* a1, float* a2);
 
 // class declarations
 
+//base class for list purpose
 
-     ///////////////////////////////////////////////////////
-    //
-   //  pixel class.
-  //
- ///////////////////////////////////////////////////////
+class item
+{
+public :
+	item(std::list<item*>* BaseList);
+	~item(void);
 
+	virtual void draw(void);
+	virtual void print(void);
+
+private:
+	std::list<item*>* _BaseList;
+};
+
+//pixel class
 class pixel :
              public item    // inherits from item because its part of a DrawList
 {
 public:
 	// constructors. Specify the list of the item, postion and color
-	pixel(dlist* list, const float p[2], const float color[3]);
+	pixel(std::list<item*>* BaseList, const float p[2], const float color[3]);
 	~pixel(void);
 
 	void print() const;   // print myself in EDIF++ format
@@ -47,19 +55,13 @@ private:
 	float _color[3];
 };
 
-     ///////////////////////////////////////////////////////
-    //
-   //  line class.
-  //
- ///////////////////////////////////////////////////////
-
+//line class
 class line :
              public item    // inherits from item because its part of a DrawList
 {
 public:
 	// constructors. Specify the list of the line, postion, color and width
-	line(dlist* list, const float p1[2], const float p2[2],
-									const float color[3], const float lineWidth);
+	line(std::list<item*>* BaseList, const float p1[2], const float p2[2], const float color[3], const float lineWidth);
 	~line(void);
 
 	void print() const;   // print myself in EDIF++ format
@@ -74,17 +76,12 @@ private:
 	float _lineWidth;
 };
 
-     ///////////////////////////////////////////////////////
-    //
-   //  text class.
-  //
- ///////////////////////////////////////////////////////
-
+//text class
 class text :
 			public item    // inherits from item because its part of a DrawList
 {
 public:
-	text(dlist* list, const std::string str, const float color[3], int x, int y);
+	text(std::list<item*>* BaseList, const std::string str, const float color[3], int x, int y);
 	~text(void);
 
 	void print() const;   // print myself in EDIF++ format
@@ -101,17 +98,13 @@ private:
 
 };
 
-///////////////////////////////////////////////////////
-//
-//  square class.
-//
-///////////////////////////////////////////////////////
 
+//  square class
 class square :
 	public item
 {
 public:
-	square(dlist* list, const float p1[2], const float p2[2], const float linecolor[3], const float fillcolor[3]);
+	square(std::list<item*>* BaseList, const float p1[2], const float p2[2], const float linecolor[3], const float fillcolor[3]);
 	~square(void);
 
 	void print() const;

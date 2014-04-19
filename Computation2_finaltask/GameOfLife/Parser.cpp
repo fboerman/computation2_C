@@ -11,7 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include "drawtools.h"
-#include "dlist.h"
+#include <list>
 #include "GameOfLife.h"
 #include "List.h"
 #include "Parser.h"
@@ -23,7 +23,7 @@
 using namespace std;
 
 //the parser for .gol files
-int* GOLParser(std::string filename, int maxwidht, int maxheight, dlist* DrawList, int* cell_dimension)
+int* GOLParser(std::string filename, int maxwidht, int maxheight, list<item*>* DrawList, int* cell_dimension)
 {
 	int gridsize[2];
 	ifstream file;
@@ -186,7 +186,7 @@ string findstring(string line)
 	return line.substr(first, last - first);
 }
 
-void readEDIF(string fname, string* windowname, dlist* DrawList) //old parser
+void readEDIF(string fname, string* windowname, list<item*>* DrawList) //old parser
 {
 	ifstream file;
 	string fline;

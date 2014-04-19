@@ -13,9 +13,8 @@
 #include <math.h>
 using namespace std;
 
-#include <GL/glut.h>
+#include <GL\freeglut\freeglut.h>
 #include "GameOfLife.h"
-#include "dlist.h"
 #include "drawtools.h"
 #include "SharedGlobals.h"
 #include "Colours.h"
@@ -191,7 +190,7 @@ int* calc_window_size(const int* gridsize, const int cell_dimension) //other way
 }
 
 
-void fill_grid(dlist* drawlist, const int xsize, const int ysize, const int cell_dimension) //fills the grid with empty cells
+void fill_grid(list<item*>* drawlist, const int xsize, const int ysize, const int cell_dimension) //fills the grid with empty cells
 {
 	//iterate trough the grid, grid has format [x][y]
 	for (int y = 0; y < ysize; y++)

@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glut.h> // glut header file. Never include glut before stdlib.h!
+#include <GL\freeglut\freeglut.h>
 #include <sstream>
 #include <string>
 #include <fstream>
@@ -28,7 +28,6 @@ int colourscheme;
 #include <math.h> // Might come in usefull for cosine functions and stuff like that
 
 #include "main.h" // Function declarations and some definitions
-#include "dlist.h" // base class of the drawtools
 #include "drawtools.h" // contains all you need to draw stuff
 #include "GameOfLife.h"	
 #include "Parser.h"
@@ -339,11 +338,9 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT);  // clear the backbuffer
 
 	//iterate through the drawlist
-	dlist::ITER iter(&DrawList);
-	item* itemptr = 0;
-	while (itemptr = iter.next()) //iterate through the drawlist
+	for (list<item*>::iterator it = DrawList.begin(), end = DrawList.end(); it != end; ++it)
 	{
-		itemptr->draw(); //and draw the item
+		(*it)->draw();
 	}
 	printtext(keytext.str(), 50, 50); //print text of pressed key
 	glFlush();			// Execute all commands waiting to be executed

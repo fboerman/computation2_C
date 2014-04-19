@@ -12,7 +12,8 @@
 //---------------------------------------------------------------------------
 #include <string>
 #include <sstream>
-#include "dlist.h"
+#include "drawtools.h"
+#include <list>
 #include "GameOfLife.h"
 
 //    Function declarations
@@ -22,7 +23,7 @@ void init();
 
 //global variables
 stringstream keytext;
-dlist DrawList;
+std::list<item*> DrawList = std::list<item*>();
 string windowname;
 int speed = 1;
 int windowheight;

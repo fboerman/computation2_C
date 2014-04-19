@@ -11,9 +11,8 @@
 //dimension of the cell on screen
 //#define CELL_DIMENSION 30
 
-#include "dlist.h"
 #include "drawtools.h"
-
+#include <list>
 
 //global
 const float LINECOLOR[3] = { 0.0, 0.5, 0.0 };
@@ -68,7 +67,7 @@ int* calc_grid_size(const int* windowsize, const int cell_dimension);
 int* calc_window_size(const int* gridsize, const int cell_dimension);
 
 //fills give grid with empty cells (dead and with 0 age) and adds it to drawlist
-void fill_grid(dlist* drawlist, const int xsize, const int ysize, const int cell_dimension);
+void fill_grid(std::list<item*>* drawlist, const int xsize, const int ysize, const int cell_dimension);
 
 //checks the whole grid and advances it one generation
 void Tick(void);

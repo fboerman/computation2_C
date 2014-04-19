@@ -11,7 +11,7 @@
 #include <sstream>
 using namespace std;
 
-#include <GL/glut.h>
+#include <GL\freeglut\freeglut.h>
 #include "drawtools.h"
 
 //help functions
@@ -29,13 +29,31 @@ void copy_array(const float* a1, float* a2)
 
 // class definitions:
 
-     ///////////////////////////////////////////////////////
-    //
-   //  pixel class.
-  //
- ///////////////////////////////////////////////////////
-pixel::pixel(dlist* list, const float p[2], const float color[3])
-	: item(list)    // call the ctor of item and chain into list
+//item base class
+item::item(std::list<item*>* BaseList)
+{
+	_BaseList = BaseList;
+	_BaseList->push_back(this);
+}
+
+item::~item()
+{
+	_BaseList->remove(this);
+}
+
+void item::draw()
+{
+
+}
+
+void item::print()
+{
+
+}
+
+//pixel class
+pixel::pixel(std::list<item*>* BaseList, const float p[2], const float color[3])
+:item(BaseList)
 {
 	assert(p);   // if you crash here then you called this with no coordinates
 	copy_array(p, _p);
@@ -83,14 +101,9 @@ pixel::~pixel(void)
 
 
 //---------------------------------------------------------------------------
-     ///////////////////////////////////////////////////////
-    //
-   //  line class.
-  //
- ///////////////////////////////////////////////////////
-line::line(dlist* list, const float p1[2], const float p2[2],
-                        const float color[3], const float lineWidth)
-	: item(list)    // call the ctor of item and chain into list
+//line class
+line::line(std::list<item*>* BaseList, const float p1[2], const float p2[2], const float color[3], const float lineWidth)
+:item(BaseList)
 {
 	//check coordinates
 	assert(p1);
@@ -141,14 +154,9 @@ void line::draw(void)
 	glEnd();
 }
 
-     ///////////////////////////////////////////////////////
-    //
-   //  text class.
-  //
- ///////////////////////////////////////////////////////
-
-text::text(dlist* list, const string str, const float color[3], int x, int y)
-	:item(list)
+//text class
+text::text(std::list<item*>* BaseList, const string str, const float color[3], int x, int y)
+:item(BaseList)
 {	
 	if (str == "")
 	{
@@ -191,14 +199,11 @@ void text::draw()
 	}
 }
 
-///////////////////////////////////////////////////////
-//
 //  square class.
 // for function description see header file
-///////////////////////////////////////////////////////
 
-square::square(dlist* list, const float p1[2], const float p2[2], const float linecolor[3], const float fillcolor[3])
-	:item(list)
+square::square(std::list<item*>* BaseList, const float p1[2], const float p2[2], const float linecolor[3], const float fillcolor[3])
+:item(BaseList)
 {
 	assert(p1);
 	assert(p2);
@@ -245,7 +250,7 @@ square::square(dlist* list, const float p1[2], const float p2[2], const float li
 
 square::~square()
 {
-	remove_from_list();
+	//remove_from_list();
 }
 
 void square::print() const
@@ -397,5 +402,4 @@ void square::Set_Colour(const float colour[3])
 	_fillcolor[0] = (float)colour[0] / (float)255;
 	_fillcolor[1] = (float)colour[1] / (float)255;
 	_fillcolor[2] = (float)colour[2] / (float)255;
-	//copy_array(c, _fillcolor);
 }
